@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Clock Sync</title>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="message" />
+        <input type="button" id="synctime" value="Sync" />
+        <input type="hidden" id="name" />
+        <ul id="discussion"></ul>
+    </div>
+    <script src="Scripts/jquery-1.6.4.js"></script>
+    <script src="Scripts/jquery-1.6.4.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.1.1.min.js"></script>
+    <script src="signalr/hubs"></script>
+    <script>
+        $(function () {
+
+            function msToTime(s) {
+                var ms = s % 1000;
+                s = (s - ms) / 1000;
+                var secs = s % 60;
+                s = (s - secs) / 60;
+                var mins = s % 60;
+                var hrs = (s - mins) / 60;
+
+                return hrs + ':' + mins + ':' + secs + '.' + ms;
+            }
+            var time = $.connection.timeHub;
+
+            time.client.broadcastTime = function (name, newTime) {
+
+                console.log("New Time for " + name + " = " + newTime);
+               
+            };
+
+            $('#name').val(prompt('Enter your name:', ''));
+            $.connection.hub.start().done(function () {
+                $('#synctime').click(function () {
+                    
+
+                    var milliseconds = new Date().getTime();
+                    console.log("Old time for " + name + " = " + milliseconds);
+                    // Call the Send method on the hub. 
+                    time.server.sync($('#displayname').val(), milliseconds);
+                    // Clear text box and reset focus for next comment. 
+                    $('#message').val('').focus();
+                });
+            });
+        });
+
+    </script>
+
+
+</body>
+</html>
